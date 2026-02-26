@@ -1,0 +1,19 @@
+flutter_launcher_icons:
+  image_path: "assets/images/prepal_logo.png"
+  
+  # Android icons configuration
+  android: true
+  min_sdk_android: 21
+  
+  # iOS icons configuration
+  ios: false
+  
+  # Remove alpha channel for iOS App Store compliance
+  remove_alpha_ios: true
+  
+  # Web icons configuration (optional)
+  web:
+    generate: true
+    image_path: "assets/images/prepal_logo.png"
+    background_color: "#ffffff"
+    theme_color: "#D05B2D"

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/api_service.dart';
-import '../onboarding/business_details_screen.dart';
-import 'signup_screen.dart';
+import '../onboarding/business_details_screen.dart' show BusinessDetailsScreen;
 
 /// Simple Login Screen for PrePal
 class LoginScreen extends StatefulWidget {
@@ -82,7 +81,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const BusinessDetailsScreen()),
+        MaterialPageRoute(
+          builder: (context) => BusinessDetailsScreen(),
+        ),
       );
     } on ApiException catch (e) {
       if (!mounted) return;

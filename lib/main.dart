@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/inventory_item.dart';
 import 'models/waste_log.dart';
 import 'screens/welcome/welcome_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'presentation/providers/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +23,15 @@ Future<void> main() async {
   await Hive.openBox<InventoryItem>('inventory');
   await Hive.openBox<WasteLog>('waste_logs');
   
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider(/* pass dependencies here */)),
+        // Add other providers as needed
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

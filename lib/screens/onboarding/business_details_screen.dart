@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../home/inventory_details_screen.dart';
-import '../home/home_screen.dart';
 
 class BusinessDetailsScreen extends StatefulWidget {
   const BusinessDetailsScreen({super.key});
@@ -11,14 +10,19 @@ class BusinessDetailsScreen extends StatefulWidget {
 }
 
 class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
+  static const _bgColor = Colors.white;
+  static const _fieldFill = Color(0xFFE8D5E3);
+  static const _accent = Color(0xFFD84315);
+  static const _primary = Color(0xFFFF5722);
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
-  
+
   String _selectedBusinessType = 'Cafe';
-  
+
   final List<String> _businessTypes = [
     'Cafe',
     'Restaurant',
@@ -48,16 +52,16 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
         await prefs.setString('business_type', _selectedBusinessType);
         await prefs.setString('contact_number', _contactController.text);
         await prefs.setString('website', _websiteController.text);
-        
+
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Business details saved')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Business details saved')));
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving details: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving details: $e')));
       }
     }
   }
@@ -72,12 +76,99 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     }
   }
 
+  Widget _buildProgressIndicator(bool isActive) {
+    return Container(
+      width: 60,
+      height: 4,
+      decoration: BoxDecoration(
+        color: isActive ? _accent : _fieldFill,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      border: InputBorder.none,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      errorBorder: InputBorder.none,
+      focusedErrorBorder: InputBorder.none,
+      errorStyle: const TextStyle(height: 0, fontSize: 0),
+    );
+  }
+
+  Widget _fieldContainer(Widget child) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _fieldFill,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _textField({
+    required TextEditingController controller,
+    required String hint,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+  }) {
+    return _fieldContainer(
+      TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: _inputDecoration(hint).copyWith(
+          errorMaxLines: 0,
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _actionButton({
+    required String label,
+    required VoidCallback onPressed,
+    required Color background,
+    required Color foreground,
+  }) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: background,
+          foregroundColor: foreground,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _bgColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
@@ -97,7 +188,9 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
             icon: const Icon(Icons.arrow_forward, color: Colors.black),
             onPressed: () {
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const InventoryDetailsScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const InventoryDetailsScreen(),
+                ),
               );
             },
           ),
@@ -111,6 +204,18 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildProgressIndicator(true),
+                    const SizedBox(width: 8),
+                    _buildProgressIndicator(false),
+                    const SizedBox(width: 8),
+                    _buildProgressIndicator(false),
+                    const SizedBox(width: 8),
+                    _buildProgressIndicator(false),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 const Text(
                   'Business details',
@@ -122,165 +227,87 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                
-                // Business name
-                const Text(
-                  'Business name',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
+                _label('Business name'),
                 const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8D5E3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextFormField(
-                    controller: _businessNameController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter business name',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter business name';
-                      }
-                      return null;
-                    },
-                  ),
+                _textField(
+                  controller: _businessNameController,
+                  hint: 'Enter business name',
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Please enter business name'
+                      : null,
                 ),
                 const SizedBox(height: 24),
-                
-                // Contact address
-                const Text(
-                  'Contact address',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
+                _label('Contact address (Optional)'),
                 const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8D5E3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextFormField(
-                    controller: _addressController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter contact address',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter contact address';
-                      }
-                      return null;
-                    },
-                  ),
+                _textField(
+                  controller: _addressController,
+                  hint: 'Enter contact address',
+                  validator: (value) => null,
                 ),
                 const SizedBox(height: 24),
-                
-                // Business type and Contact number row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Business type
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Business type',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
+                          _label('Business type'),
                           const SizedBox(height: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8D5E3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedBusinessType,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                          _fieldContainer(
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                              dropdownColor: const Color(0xFFE8D5E3),
-                              items: _businessTypes.map((String type) {
-                                return DropdownMenuItem<String>(
-                                  value: type,
-                                  child: Text(type),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedBusinessType = newValue;
-                                  });
-                                }
-                              },
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedBusinessType,
+                                isExpanded: true,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                                dropdownColor: _fieldFill,
+                                items: _businessTypes
+                                    .map(
+                                      (type) => DropdownMenuItem<String>(
+                                        value: type,
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: Text(type, overflow: TextOverflow.ellipsis),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (newValue) {
+                                  if (newValue != null) {
+                                    setState(() {
+                                      _selectedBusinessType = newValue;
+                                    });
+                                  }
+                                },
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 16),
-                    
-                    // Contact number
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Contact number',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
+                          _label('Contact number'),
                           const SizedBox(height: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8D5E3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextFormField(
-                              controller: _contactController,
-                              keyboardType: TextInputType.phone,
-                              decoration: const InputDecoration(
-                                hintText: '+123 456 7890',
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                return null;
-                              },
-                            ),
+                          _textField(
+                            controller: _contactController,
+                            hint: '+123 456 7890',
+                            keyboardType: TextInputType.phone,
+                            validator: (value) =>
+                                (value == null || value.isEmpty)
+                                ? 'Required'
+                                : null,
                           ),
                         ],
                       ),
@@ -288,82 +315,29 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
-                // Website
-                const Text(
-                  'Website',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
+                _label('Website (Optional)'),
                 const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8D5E3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextFormField(
-                    controller: _websiteController,
-                    keyboardType: TextInputType.url,
-                    decoration: const InputDecoration(
-                      hintText: 'www.yourbusiness.com',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
+                _textField(
+                  controller: _websiteController,
+                  hint: 'www.yourbusiness.com',
+                  keyboardType: TextInputType.url,
+                  validator: (value) => null,
                 ),
                 const SizedBox(height: 40),
-                
-                // Buttons
                 Row(
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveBusinessDetails,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE8D5E3),
-                          foregroundColor: Colors.black87,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                    _actionButton(
+                      label: 'Save',
+                      onPressed: _saveBusinessDetails,
+                      background: _fieldFill,
+                      foreground: Colors.black87,
                     ),
                     const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveAndContinue,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF5722),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Next',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                    _actionButton(
+                      label: 'Next',
+                      onPressed: _saveAndContinue,
+                      background: _primary,
+                      foreground: Colors.white,
                     ),
                   ],
                 ),

@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 import '../models/inventory_item.dart';
 import '../models/waste_log.dart';
 
@@ -34,32 +34,23 @@ class ApiService {
     required String password,
   }) async {
     try {
-      // Mock delay to simulate network request
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      // Validate inputs
-      if (email.isEmpty || password.isEmpty) {
-        throw ApiException('Email and password are required');
-      }
-
-      // Mock authentication logic
-      if (!email.contains('@')) {
-        throw ApiException('Invalid email format');
-      }
-
-      // Simulate successful login
-      final mockToken = 'token_${DateTime.now().millisecondsSinceEpoch}';
-      _authToken = mockToken;
-
-      return {
-        'success': true,
-        'token': mockToken,
-        'user': {
-          'id': 'user_123',
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'email': email,
-          'businessName': email.split('@')[0],
-        },
-      };
+          'password': password,
+        }),
+      ).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _authToken = data['token'];
+        return data;
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiException(error['message'] ?? 'Login failed');
+      }
     } catch (e) {
       throw _handleError(e);
     }
@@ -71,48 +62,26 @@ class ApiService {
     required String email,
     required String password,
     required String businessName,
-    required String phoneNumber,
-    required String countryCode,
   }) async {
     try {
-      // Mock delay to simulate network request
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      // Validation
-      if (email.isEmpty || password.isEmpty || businessName.isEmpty) {
-        throw ApiException('Email, password, and username are required');
-      }
-
-      if (!email.contains('@')) {
-        throw ApiException('Invalid email format');
-      }
-
-      if (password.length < 8) {
-        throw ApiException('Password must be at least 8 characters');
-      }
-
-      // Check for at least one uppercase letter and one number
-      final hasUpperCase = password.contains(RegExp(r'[A-Z]'));
-      final hasNumber = password.contains(RegExp(r'[0-9]'));
-      
-      if (!hasUpperCase || !hasNumber) {
-        throw ApiException('Password must contain at least one capital letter and one number');
-      }
-
-      // Simulate successful registration
-      final mockToken = 'token_${DateTime.now().millisecondsSinceEpoch}';
-      _authToken = mockToken;
-
-      return {
-        'success': true,
-        'token': mockToken,
-        'user': {
-          'id': 'user_${DateTime.now().millisecondsSinceEpoch}',
+      final response = await http.post(
+        Uri.parse('$baseUrl/signup'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'email': email,
+          'password': password,
           'businessName': businessName,
-          'phoneNumber': '$countryCode$phoneNumber',
-        },
-      };
+        }),
+      ).timeout(timeout);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        _authToken = data['token'];
+        return data;
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiException(error['message'] ?? 'Signup failed');
+      }
     } catch (e) {
       throw _handleError(e);
     }

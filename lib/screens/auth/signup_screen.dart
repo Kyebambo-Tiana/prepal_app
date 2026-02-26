@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/api_service.dart';
-import '../home/home_screen.dart';
-import 'login_screen.dart';
 import 'verification_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -23,62 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _obscureConfirm = true;
   bool _isLoading = false;
 
-  static const List<Map<String, String>> _countryCodes = [
-    {'name': 'Nigeria', 'code': '+234'},
-    {'name': 'Ghana', 'code': '+233'},
-    {'name': 'Kenya', 'code': '+254'},
-    {'name': 'South Africa', 'code': '+27'},
-    {'name': 'Cameroon', 'code': '+237'},
-    {'name': 'Egypt', 'code': '+20'},
-    {'name': 'Ethiopia', 'code': '+251'},
-    {'name': 'Rwanda', 'code': '+250'},
-    {'name': 'Senegal', 'code': '+221'},
-    {'name': 'Tanzania', 'code': '+255'},
-    {'name': 'Uganda', 'code': '+256'},
-    {'name': 'Morocco', 'code': '+212'},
-    {'name': 'Algeria', 'code': '+213'},
-    {'name': 'Angola', 'code': '+244'},
-    {'name': 'Benin', 'code': '+229'},
-    {'name': 'Botswana', 'code': '+267'},
-    {'name': 'Burkina Faso', 'code': '+226'},
-    {'name': 'Burundi', 'code': '+257'},
-    {'name': 'Cape Verde', 'code': '+238'},
-    {'name': 'Central African Republic', 'code': '+236'},
-    {'name': 'Chad', 'code': '+235'},
-    {'name': 'Comoros', 'code': '+269'},
-    {'name': 'Congo (DRC)', 'code': '+243'},
-    {'name': 'Congo (Republic)', 'code': '+242'},
-    {'name': 'Cote d’Ivoire', 'code': '+225'},
-    {'name': 'Djibouti', 'code': '+253'},
-    {'name': 'Equatorial Guinea', 'code': '+240'},
-    {'name': 'Eritrea', 'code': '+291'},
-    {'name': 'Eswatini', 'code': '+268'},
-    {'name': 'Gabon', 'code': '+241'},
-    {'name': 'Gambia', 'code': '+220'},
-    {'name': 'Guinea', 'code': '+224'},
-    {'name': 'Guinea-Bissau', 'code': '+245'},
-    {'name': 'Lesotho', 'code': '+266'},
-    {'name': 'Liberia', 'code': '+231'},
-    {'name': 'Libya', 'code': '+218'},
-    {'name': 'Madagascar', 'code': '+261'},
-    {'name': 'Malawi', 'code': '+265'},
-    {'name': 'Mali', 'code': '+223'},
-    {'name': 'Mauritania', 'code': '+222'},
-    {'name': 'Mauritius', 'code': '+230'},
-    {'name': 'Mozambique', 'code': '+258'},
-    {'name': 'Namibia', 'code': '+264'},
-    {'name': 'Niger', 'code': '+227'},
-    {'name': 'Sao Tome and Principe', 'code': '+239'},
-    {'name': 'Seychelles', 'code': '+248'},
-    {'name': 'Sierra Leone', 'code': '+232'},
-    {'name': 'Somalia', 'code': '+252'},
-    {'name': 'South Sudan', 'code': '+211'},
-    {'name': 'Sudan', 'code': '+249'},
-    {'name': 'Togo', 'code': '+228'},
-    {'name': 'Tunisia', 'code': '+216'},
-    {'name': 'Zambia', 'code': '+260'},
-    {'name': 'Zimbabwe', 'code': '+263'},
-  ];
+
 
   @override
   void dispose() {
@@ -110,8 +53,6 @@ class _SignupScreenState extends State<SignupScreen> {
         email: email,
         password: password,
         businessName: username,
-        phoneNumber: '',
-        countryCode: '',
       );
 
       if (!mounted) return;
@@ -133,7 +74,7 @@ class _SignupScreenState extends State<SignupScreen> {
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => VerificationScreen(email: email),
+          builder: (context) => const VerificationScreen(),
         ),
       );
     } on ApiException catch (e) {
